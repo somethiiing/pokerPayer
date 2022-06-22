@@ -5,7 +5,8 @@ const path = require('path');
 const { 
   generateNewTimestamp,
   generateNewRoomData,
-  addPlayerToRoom
+  addPlayerToRoom,
+  addTransactionToRoom
 } = require('./utils/utils');
 
 
@@ -33,20 +34,38 @@ app.get('/api/', (req, res) => {
   res.send(state);
 });
 
+app.get('/api/getRoom', (req, res) =>{
+  let { roomCode = '' } = req.query;
+  res.send(state.games[roomCode])
+})
+
 app.get('/api/createRoom', (req, res) => {
   let room = generateNewRoomData();
-  let { gameCode } = room;
-  state.games[gameCode] = room;
-  res.send({roomState: state.games[gameCode]});
+  let { roomCode } = room;
+  state.games[roomCode] = room;
+  res.send(state.games[roomCode]);
 });
 
 app.get('/api/createPlayer', (req, res) => {
-  // let { room } = req.body.data;
+  // let { roomCode } = req.body.data;
   let { roomCode, venmoId } = req.query;
   let room = state.games[roomCode];
-  let updatedRoom = addPlayerToRoom({room, venmoId});
-  state.games[roomCode] = updatedRoom;
-  res.send({roomState: state.games[roomCode]});
+  state.games[roomCode] = addPlayerToRoom({room, venmoId});
+  res.send(state.games[roomCode]);
+});
+
+app.get('/api/createTransaction', (req, res) => {
+  // let { roomCode, player, amount, transactionType } = req.body.data
+  let { roomCode, player, amount, transactionType, isCash } = req.query;
+  let room = state.games[roomCode];
+  state.games[roomCode] = addTransactionToRoom({
+    room, player, amount, transactionType, isCash
+  });
+  res.send(state.games[roomCode]);
+});
+
+app.get('/api/confirmTransaction', (req, res) => {
+
 });
 
 app.listen(PORT, () => {

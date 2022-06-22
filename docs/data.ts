@@ -8,10 +8,10 @@ export interface AppData {
 export interface Game {
   timestamp: Date;
   // gameUuid: string;
-  gameCode: string; // randomly generated 4 letter string, or fruit, or something
+  roomCode: string; // randomly generated 4 letter string, or fruit, or something
   pending: TransactionEntry[];
   transations: TransactionEntry[];
-  currentCashTotal: number; // currentCashTotal === buyInTotal - cashOutTotal
+  balanceTotal: number; // balanceTotal === buyInTotal - cashOutTotal
   buyInTotal: number;
   cashOutTotal: number;
   physicalCash: number;
@@ -22,10 +22,11 @@ export interface Game {
 }
 
 export interface TransactionEntry {
-  time: Date;
+  timestamp: Date;
   player: string;
   amount: number;
   transactionType: TransactionType;
+  isCash: boolean;
   approved: boolean;
 }
 

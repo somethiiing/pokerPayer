@@ -23,10 +23,10 @@ const generateNewRoomData = () => {
   return {
     timestamp: new Date(),
     // gameUuid: generateUuid(),
-    gameCode: generateRoomCode(),
+    roomCode: generateRoomCode(),
     pending: [],
     transactions: [],
-    currentCashTotal: 0,
+    balanceTotal: 0,
     buyInTotal: 0,
     cashOutTotal: 0,
     physicalCash: 0,
@@ -62,8 +62,27 @@ const addPlayerToRoom = ({room, venmoId, displayName, fbId}) => {
   return room;
 }
 
+const createTransaction = ({player, amount, transactionType, isCash = false}) => {
+  return {
+    timestamp: new Date(),
+    player,
+    amount,
+    transactionType,
+    isCash,
+    approved: false
+  }
+}
+
+const addTransactionToRoom = ({room, player, amount, transactionType, isCash}) => {
+  let transaction = createTransaction({player, amount, transactionType, isCash});
+  room.pending = room.pending.slice(0).push(transaction);
+
+  return room;
+}
+
 module.exports = {
   generateNewTimestamp,
   generateNewRoomData,
-  addPlayerToRoom
+  addPlayerToRoom,
+  addTransactionToRoom
 }
