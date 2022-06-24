@@ -46,7 +46,7 @@ app.get('/api/createRoom', (req, res) => {
   res.send(state.games[roomCode]);
 });
 
-app.get('/api/createPlayer', (req, res) => {
+app.get('/api/joinRoom', (req, res) => {
   // let { roomCode } = req.body.data;
   let { roomCode, venmoId } = req.query;
   let room = state.games[roomCode];
