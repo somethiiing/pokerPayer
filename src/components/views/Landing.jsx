@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Grid, Box, TextField, Button } from '@mui/material';
 
+import ApiContext from '../ApiContext';
+
 const LandingPage = () => {
+  const { color, joinRoom } = useContext(ApiContext);
+
   const [roomCode, setRoomCode] = useState('');
   const [venmoId, setVenmoId] = useState('');
   const [displayName, setDisplayName] = useState('');
 
-  window.log = () => {
-    console.log('roomCode: ', roomCode);
-    console.log('venmoId: ', venmoId);
-    console.log('displayName: ', displayName);
+  const handleJoinRoom = () => {
+    joinRoom({ roomCode, venmoId, displayName });
   }
+
   return (
     <div style={{
       height: '100%',
@@ -71,6 +74,7 @@ const LandingPage = () => {
                   sx={{
                     height: '55px'
                   }}
+                  onClick={handleJoinRoom}
                 >Join Room</Button>
                 <Button variant="outlined"
                   sx={{
