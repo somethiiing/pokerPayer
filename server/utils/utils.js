@@ -1,143 +1,77 @@
-// const { v4: generateUuid } = require('uuid');
-
-let usedRoomCodes = [];
-
-const generateFourLetterCode = () => {
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  for (var i = 0; i < 4; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  return text;
-}
-
-const generateRoomCode = () => {
-  let text = generateFourLetterCode();
-  while(usedRoomCodes.indexOf(text) > -1) {
-    text = generateFourLetterCode();
-  }
-  usedRoomCodes.push(text);
-  return text;
-}
-
-const generateNewRoomData = () => {
-  return {
-    timestamp: new Date(),
-    // gameUuid: generateUuid(),
-    roomCode: generateRoomCode(),
-    pending: [],
-    transactions: [],
-    balanceTotal: 0,
-    buyInTotal: 0,
-    cashOutTotal: 0,
-    physicalCash: 0,
-    players: {},
-    payments: []
-  }
-}
+const { EmbedBuilder } = require('discord.js');
 
 const generateNewTimestamp = () => {
   return new Date();
 }
 
-const createPlayer = ({venmoId, displayName, fbId}) => {
-  return {
-    joinTime: new Date(),
-    // playerUuid: '',
-    venmoId: venmoId || '',
-    displayName: displayName || '',
-    fbId: fbId || '',
-    buyInTotal: 0,
-    cashOutTotal: 0,
-    endBalance: 0,
-    recentTransaction: {},
-    isSettled: false,
-    payments: []
-  }
-}
+const newState = {
+  timestamp: new Date(),
+  group_id: '38236210',
+  bankerId: '57674143',
+  // cashId: '57361884',
+  users: {
+    '199748877899792384': {
+      first_name: 'wilson',
+      last_name: 'yu',
+      email: 'hello@wilsonyu.io',
+      swId: '50605347'
+    }
+  },
+  userMap: {
+    'wilson yu': '199748877899792384'
+  },
+  transactions: {},
+  toDelete: {},
+};
 
-const addPlayerToRoom = ({room, venmoId, displayName, fbId}) => {
-  let player = createPlayer({venmoId, displayName, fbId});
-  room.players[venmoId] = Object.assign({}, player);
-
-  return room;
-}
-
-const createTransaction = ({player, amount, transactionType, isCash = false}) => {
-  return {
-    timestamp: new Date(),
-    player,
-    amount,
-    transactionType,
-    isCash,
-    approved: false
-  }
-}
-
-const addTransactionToRoom = ({room, player, amount, transactionType, isCash}) => {
-  let transaction = createTransaction({player, amount, transactionType, isCash});
-  room.pending = room.pending.slice(0).push(transaction);
-
-  return room;
-}
-
-const createPayment = ({sender, receiver, payment, isCash}) => {
-  //add a log here for each payment being created
-  return {
-    sender,
-    receiver,
-    payment,
-    isCash
-  }
-}
-
-const getListofPayments = ({players}) => {
-  let payments = [];
-  let receivers = [];
-  let senders = [];
-
-  // iterate through players list, sort by receivers (positive balance) and senders (negative balance, senders will have +ve number in their end balance afterwards)
-  for(const player of players) {
-    if (player.endBalance < 0) {
-      player.endBalance *= -1;
-      senders.push(player);
+const generateRemainingBalanceString = (balance) => {
+  let amount = balance.length > 0 && Number(balance[0].amount);
+  if(balance.length === 0 || amount === 0) {
+    return 'Settled Up! Remaining Balance: $0';
+  } else {
+    if (amount > 0) {
+      return `Extra money! Banker still has $${amount}`;
     } else {
-      receivers.push(player);
+      return `Short! Banker is short $${Math.abs(amount)}`;
     }
-  }
-  // sort senders and receivers list from greatest to smallest
-  senders.sort(func(a,b){return a.endBalance > b.endBalance});
-  receivers.sort(func(a,b){return a.endBalance > b.endBalance});
+  };
+};
 
-  var receiver = receivers.pop();
-  var sender = senders.pop();
-  while(sender != null) {
-    if(sender.endBalance < receiver.endBalance) {
-      payments.push(createPayment(sender.displayName, receiver.displayName, sender.endBalance, false));
-      receiver.endBalance = receiver.endBalance - sender.endBalance;
-      if (senders.length > 0) {
-        sender = senders.pop();
-      }
-    } else if (sender.endBalance > receiver.endBalance) {
-      payments.push(createPayment(sender.displayName, receiver.displayName, receiver.endBalance, false));
-      sender.endBalance = sender.endBalance - receiver.endBalance
-      receiver = receivers.pop();
-    } else {  //sender and receiver balance are equal
-      payments.push(createPayment(sender.displayName, receiver.displayName, receiver.endBalance, false));
-      if (senders.length == 0) {
-        sender = null
-      } else {
-        sender = senders.pop()
-        receiver = receivers.pop()
-      }
-    }
-  }
+const generateSettlements = ({debts, users}) => {
+  let hash = {};
 
-  return payments;
+  Object.keys(users).forEach( key => {
+    hash[users[key].swId] = users[key];
+  });
+
+  return debts.map( debt => {
+    const fromId = debt.from;
+    const fromFullName = `${hash[fromId].first_name} ${hash[fromId].last_name}`;
+    const toId = debt.to;
+    const toFullName = `${hash[toId].first_name} ${hash[toId].last_name}`;
+    const amt = `$${Number(debt.amount)}`;
+
+    return new EmbedBuilder()
+      .setTitle('PAYMENT')
+      .setDescription(`${fromFullName} to ${toFullName} - ${amt}`)
+      .addFields(
+        { name: 'FROM', value: fromFullName, inline: true },
+        { name: 'TO', value: toFullName, inline: true },
+        { name: 'AMOUNT', value: amt, inline: true },
+      )
+      .setTimestamp();
+  });
 }
+
+const generateUnsettledBalance = (str) =>
+  new EmbedBuilder()
+    .setTitle('NOT SETTLED')
+    .setDescription(str)
 
 module.exports = {
   generateNewTimestamp,
-  generateNewRoomData,
-  addPlayerToRoom,
-  addTransactionToRoom
+  newState,
+  generateRemainingBalanceString,
+  generateSettlements,
+  generateUnsettledBalance
 }
