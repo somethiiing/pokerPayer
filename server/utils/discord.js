@@ -72,8 +72,8 @@ const cashOutCommand = new SlashCommandBuilder()
       .setRequired(true)
   );
 
-const registerCommand = new SlashCommandBuilder()
-  .setName('register')
+const joinCommand = new SlashCommandBuilder()
+  .setName('join')
   .setDescription('Register yourself before proceeding with the game!')
   .addStringOption(option =>
     option.setName('first_name')
@@ -183,7 +183,7 @@ module.exports = {
   IntentsArray,
   buyInCommand,
   cashOutCommand,
-  registerCommand,
+  joinCommand,
   createNewGameCommand,
   balanceCommand,
   settleCommand,

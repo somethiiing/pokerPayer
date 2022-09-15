@@ -41,7 +41,7 @@ const {
   IntentsArray,
   buyInCommand,
   cashOutCommand,
-  registerCommand,
+  joinCommand,
   decisionsButtonBuilder,
   deleteMessage,
   deleteAllMessagesInChannel,
@@ -342,7 +342,7 @@ client.on('interactionCreate', async interaction => {
 const commands = [
   buyInCommand,
   cashOutCommand,
-  registerCommand,
+  joinCommand,
   createNewGameCommand,
   balanceCommand,
   settleCommand,
