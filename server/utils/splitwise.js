@@ -10,8 +10,6 @@ const sw = Splitwise({
   consumerSecret: process.env.SPLITWISE_CONSUMER_SECRET
 });
 
-console.log(process.env.SPLITWISE_CONSUMER_KEY, process.env.SPLITWISE_CONSUMER_SECRET)
-
 const createRoom = () => {
   return sw.createGroup({
     name: `Poker - ${new Date().toLocaleDateString()}`,
