@@ -129,7 +129,7 @@ client.on('messageCreate', msg => {
 
 // REGISTER
 client.on('interactionCreate', async interaction => {
-  const ignore = ['register'];
+  const ignore = ['join'];
   if(!ignore.includes(interaction.commandName)) return;
   const userID = interaction.user.id;
 
@@ -137,7 +137,7 @@ client.on('interactionCreate', async interaction => {
     let channelName = client.channels.cache.get(joinGameChannelId).toString();
     await interaction.reply(doesNotWorkMsg(channelName));
   } else {
-    if (interaction.commandName === 'register') {
+    if (interaction.commandName === 'join') {
       const { group_id } = state;
       const [first_name, last_name, email] = interaction.options['_hoistedOptions'].map(el => el.value);
       const role = interaction.guild.roles.cache.find(role => role.name === 'Poker - In Game');
@@ -206,9 +206,9 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-// CREATENEWGAME
+// CREATENEWGAME/BALANCE/SETTLE
 client.on('interactionCreate', async interaction => {
-  const ignore = ['createnewgame', 'viewremainingbalance', 'settle'];
+  const ignore = ['createnewgame', 'balance', 'settle'];
 
   if(!ignore.includes(interaction.commandName)) return;
 
@@ -221,23 +221,28 @@ client.on('interactionCreate', async interaction => {
       await interaction.reply(noPermissionMsg);
     } else {
       if (interaction.commandName === 'createnewgame') {
-        const channels = [joinGameChannelId, adminChannelId, commandsChannelId, logsChannelId, rejectedChannelId];
-        channels.forEach( el => deleteAllMessagesInChannel({client, channelId: el}))
-        recreateRole(interaction);
+        const options = interaction.options['_hoistedOptions'];
+        if (options.length === 2 && options[0].value && options[1].value) {
+          const channels = [joinGameChannelId, adminChannelId, commandsChannelId, logsChannelId, rejectedChannelId];
+          channels.forEach( el => deleteAllMessagesInChannel({client, channelId: el}))
+          recreateRole(interaction);
 
-        createRoom()
-        .then(data => processCreateRoomData(data))
-        .then(async data => {
-          counter = 0;
-          state = Object.assign({}, newState, data);
-          state.users['199748877899792384'].swId = data.wyuSwId;
-          delete state.wyuSwId;
-          await interaction.reply(`Previous game cleared. Game Id: ${data.group_id} created!`)
-        })
-        .catch(async err => {
-          console.log(err);
-          await interaction.reply('An error occured!')
-        })
+          createRoom()
+          .then(data => processCreateRoomData(data))
+          .then(async data => {
+            counter = 0;
+            state = Object.assign({}, newState, data);
+            state.users['199748877899792384'].swId = data.wyuSwId;
+            delete state.wyuSwId;
+            await interaction.reply(`Previous game cleared. Game Id: ${data.group_id} created!`)
+          })
+          .catch(async err => {
+            console.log(err);
+            await interaction.reply('An error occured!')
+          })
+        } else {
+          await interaction.reply('Options not satisfied. New game not created.')
+        }
       }
       if (interaction.commandName === 'balance') {
         const { group_id, bankerId } = state;
@@ -337,7 +342,12 @@ client.on('interactionCreate', async interaction => {
     deleteMessage({client, channelId: adminChannelId, msgId: state.toDelete[content]})
     await state.transactions[tNum].interaction.editReply({embeds: [rejectedEmbed]})
   }
-})
+});
+
+// LOGS
+client.on('interactionCreate', async interaction => {
+  console.log('interaction', interaction.commandName)
+});
 
 const commands = [
   buyInCommand,

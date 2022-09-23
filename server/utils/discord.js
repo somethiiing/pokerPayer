@@ -102,7 +102,7 @@ const createNewGameCommand = new SlashCommandBuilder()
   );
 
 const balanceCommand = new SlashCommandBuilder()
-  .setName('viewremainingbalance')
+  .setName('balance')
   .setDescription('View how much the banker still has. (Used for debugging cashing out).');
 
 const settleCommand = new SlashCommandBuilder()
@@ -131,16 +131,16 @@ const decisionEmbedBuilder = ({content, admin, decision}) => {
   const decisionText = decision === 'approve' ? 'APPROVED' : 'REJECTED';
 
   return new EmbedBuilder()
-      .setTitle(decisionText)
-      .setDescription(content)
-      .addFields(
-        { name: 'Transaction Number', value: tNum, inline: true },
-        { name: 'Transaction Type', value: tType, inline: true },
-        { name: 'Player', value: name, inline: true },
-        { name: 'Amount', value: `${amount}`, inline: true },
-        { name: 'Decision By:', value: admin, inline: true}
-      )
-      .setTimestamp()
+  .setTitle(decisionText)
+  .setDescription(content)
+  .addFields(
+    { name: 'Transaction Number', value: tNum, inline: true },
+    { name: 'Transaction Type', value: tType, inline: true },
+    { name: 'Player', value: name, inline: true },
+    { name: 'Amount', value: `${amount}`, inline: true },
+    { name: 'Decision By:', value: admin, inline: true}
+  )
+  .setTimestamp()
 }
 
 const logEmbedBuilder = ({content}) => {
