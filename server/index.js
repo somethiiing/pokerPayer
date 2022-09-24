@@ -139,24 +139,31 @@ client.on('interactionCreate', async interaction => {
   } else {
     if (interaction.commandName === 'join') {
       const { group_id } = state;
-      const [first_name, last_name, email] = interaction.options['_hoistedOptions'].map(el => el.value);
-      const role = interaction.guild.roles.cache.find(role => role.name === 'Poker - In Game');
+      const { guild, member, user, options } = interaction;
+      const [email] = options['_hoistedOptions'].map(el => el.value);
+      const role = guild.roles.cache.find(role => role.name === 'Poker - In Game');
+      let name;
 
-      addUserToGroup({group_id, first_name, last_name, email})
+      if (member.nickname) {
+        name = member.nickname;
+      } else {
+        name = user.username;
+      }
+
+      addUserToGroup({group_id, first_name: name, email})
       .then( () => getGroupData({group_id}))
       .then( async data => {
         const member = data.members.filter( mem => mem.email === email)[0];
         state.users[userID] = {
-          first_name: first_name,
-          last_name: last_name,
+          name,
           email: email,
           swId: String(member.id)
         }
-        state.userMap[`${first_name} ${last_name}`] = String(userID);
+        state.userMap[`${name}`] = String(userID);
 
-        return interaction.member.edit({roles: [role]})
+        return interaction.member.roles.add(role);
       })
-      .then(async () => await interaction.reply(`Player ${first_name} ${last_name} successfully registered for game!`))
+      .then(async () => await interaction.reply(`Player ${name} successfully registered for game!`))
       .catch(async err => {
         console.log(err)
         await interaction.reply('An error occured adding a player')
@@ -182,9 +189,9 @@ client.on('interactionCreate', async interaction => {
       const tType = interaction.commandName;
       const channel = client.channels.cache.get(adminChannelId);
 
-      const {first_name, last_name} = state.users[userID];
+      const {name} = state.users[userID];
       const amount = interaction.options['_hoistedOptions'][0].value;
-      const content = `#${counter} - ${tType.toUpperCase()} - ${first_name} ${last_name} - $${amount}`;
+      const content = `#${counter} - ${tType.toUpperCase()} - ${name} - $${amount}`;
 
       state.transactions[`#${counter}`] = {
         status: 'undecided',

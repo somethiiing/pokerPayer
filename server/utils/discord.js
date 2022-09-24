@@ -76,20 +76,21 @@ const joinCommand = new SlashCommandBuilder()
   .setName('join')
   .setDescription('Register yourself before proceeding with the game!')
   .addStringOption(option =>
-    option.setName('first_name')
-    .setDescription('Enter your first name.')
-    .setRequired(true)
-  )
-  .addStringOption(option =>
-    option.setName('last_name')
-    .setDescription('Enter your last name.')
-    .setRequired(true)
-  )
-  .addStringOption(option =>
     option.setName('email')
     .setDescription('Enter your email address.')
     .setRequired(true)
   );
+  // .addStringOption(option =>
+  //   option.setName('first_name')
+  //   .setDescription('Enter your first name.')
+  //   .setRequired(true)
+  // );
+  // .addStringOption(option =>
+  //   option.setName('last_name')
+  //   .setDescription('Enter your last name.')
+  //   .setRequired(true)
+  // )
+
 
 const createNewGameCommand = new SlashCommandBuilder()
   .setName('createnewgame')

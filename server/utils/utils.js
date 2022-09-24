@@ -6,11 +6,12 @@ const generateNewTimestamp = () => {
 
 const newState = {
   timestamp: new Date(),
-  group_id: '38236210',
+  group_id: '38581975',
   bankerId: '57674143',
   // cashId: '57361884',
   users: {
     '199748877899792384': {
+      name: 'wilson yu',
       first_name: 'wilson',
       last_name: 'yu',
       email: 'hello@wilsonyu.io',
@@ -46,9 +47,9 @@ const generateSettlements = ({debts, users}) => {
 
   return debts.map( debt => {
     const fromId = debt.from;
-    const fromFullName = `${hash[fromId].first_name} ${hash[fromId].last_name}`;
+    const fromFullName = `${hash[fromId].name}`;
     const toId = debt.to;
-    const toFullName = `${hash[toId].first_name} ${hash[toId].last_name}`;
+    const toFullName = `${hash[toId].name}`;
     const amt = `$${Number(debt.amount)}`;
 
     return new EmbedBuilder()
