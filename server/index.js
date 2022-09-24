@@ -127,7 +127,7 @@ client.on('messageCreate', msg => {
   }
 })
 
-// REGISTER
+// JOIN
 client.on('interactionCreate', async interaction => {
   const ignore = ['join'];
   if(!ignore.includes(interaction.commandName)) return;
@@ -353,7 +353,15 @@ client.on('interactionCreate', async interaction => {
 
 // LOGS
 client.on('interactionCreate', async interaction => {
-  console.log('interaction', interaction.commandName)
+  const { member, user, commandName, customId, message } = interaction;
+  let name = member.nickname ? member.nickname : user.username;
+
+  console.log('==============================================================================');
+  if (commandName) {
+    console.log(`Interaction: ${commandName}. User: ${name}`);
+  } else if (customId) {
+    console.log(`Interaction: ${customId}. Content: ${message.content}. Approver: ${name}`)
+  }
 });
 
 const commands = [

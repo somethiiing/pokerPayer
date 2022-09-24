@@ -6,7 +6,7 @@ const generateNewTimestamp = () => {
 
 const newState = {
   timestamp: new Date(),
-  group_id: '38581975',
+  group_id: '38582573',
   bankerId: '57674143',
   // cashId: '57361884',
   users: {
